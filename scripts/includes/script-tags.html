@@ -1,0 +1,5 @@
+<% for (var chunk in htmlWebpackPlugin.files.js) { %>
+  <% var basename = htmlWebpackPlugin.files.js[chunk].split('/').reverse()[0]; %>
+  <% var src = `{{ '${basename}' | asset_url }}` %>
+  <script type="text/javascript" src="<%= src %>" defer></script>
+<% } %>

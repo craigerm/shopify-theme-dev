@@ -1,0 +1,5 @@
+<% for (var chunk in htmlWebpackPlugin.files.css) { %>
+  <% var basename = htmlWebpackPlugin.files.css[chunk].split('/').reverse()[0]; %>
+  <% var src = `{{ '${basename}' | asset_url }}` %>
+  <link rel="stylesheet" href="<%= src %>" as="style">
+<% } %>
