@@ -11,15 +11,32 @@ const createJsRule = (config) => {
     test: /\.js$/,
     include: paths.jsFolder,
     exclude: /node_modules/,
-    loader: require.resolve("babel-loader"),
-    options: {
-      presets: [require.resolve("@babel/preset-env")],
-      plugins: [
-        [
-          require.resolve("@babel/plugin-transform-runtime"),
-          { regenerator: true, corejs: 3 },
+    use: {
+      loader: require.resolve("babel-loader"),
+      options: {
+        presets: [
+          [
+            require("@babel/preset-env").default,
+            {
+              useBuiltIns: "entry",
+              corejs: 3,
+              exclude: ["transform-typeof-symbol"],
+            },
+          ],
         ],
-      ],
+        plugins: [
+          [
+            require("@babel/plugin-transform-runtime").default,
+            {
+              absoluteRuntime: false,
+              regenerator: false,
+              corejs: 3,
+              absoluteRuntime: require.resolve("@babel/runtime/package.json"),
+              version: "^7.12.5",
+            },
+          ],
+        ],
+      },
     },
   };
 };
