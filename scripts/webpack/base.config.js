@@ -29,7 +29,7 @@ const createJsRule = (config) => {
             require("@babel/plugin-transform-runtime").default,
             {
               absoluteRuntime: false,
-              regenerator: false,
+              regenerator: true,
               corejs: 3,
               absoluteRuntime: require.resolve("@babel/runtime/package.json"),
               version: "^7.12.5",
