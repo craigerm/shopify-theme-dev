@@ -90,6 +90,11 @@ const createCompiler = async (config) => {
       console.log(chalk.red("Failed to compile.\n"));
       console.log(messages.errors.join("\n\n"));
       console.log(messages);
+
+      if (config.isDevelopment === false) {
+        process.exit(1);
+      }
+
       return;
     }
 
@@ -97,6 +102,10 @@ const createCompiler = async (config) => {
     if (messages.warnings.length) {
       console.log(chalk.yellow("Compiled with warnings.\n"));
       console.log(messages.warnings.join("\n\n"));
+    }
+
+    if (config.isDevelopment === false) {
+      process.exit(0);
     }
   });
 

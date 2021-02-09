@@ -28,8 +28,11 @@
     "node-sass": "^5.0.0",
     "optimize-css-assets-webpack-plugin": "^5.0.4",
     "ora": "^5.2.0",
+    "postcss": "^8.2.5",
     "postcss-flexbugs-fixes": "^5.0.2",
+    "postcss-import": "^14.0.0",
     "postcss-loader": "^5.0.0",
+    "postcss-nested": "^5.0.3",
     "postcss-normalize": "^9.0.0",
     "postcss-preset-env": "^6.7.0",
     "postcss-safe-parser": "^5.0.2",
@@ -40,5 +43,17 @@
     "webpack-cli": "^4.3.1",
     "yaml": "^1.10.0"
   },
-  "devDependencies": {}
+  "devDependencies": {},
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
 }

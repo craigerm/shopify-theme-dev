@@ -47,6 +47,20 @@ const createCssRule = (config) => {
     use: [
       MiniCssExtractPlugin.loader,
       require.resolve("css-loader"),
+      {
+        loader: require.resolve("postcss-loader"),
+        options: {
+          postcssOptions: {
+            plugins: [
+              require("postcss-flexbugs-fixes"),
+              require("postcss-preset-env"),
+              require("postcss-import"),
+              require("postcss-nested"),
+              require("autoprefixer"),
+            ],
+          },
+        },
+      },
       require.resolve("sass-loader"),
     ],
   };
