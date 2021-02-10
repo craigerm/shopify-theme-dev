@@ -6,6 +6,7 @@ TODO
 -OPTION TO INCLUDE ONLY SETTINGS FROM BLOCK  (automatically ?)
 - `assign_product`: true | false
 - `assign_collection`: true | false
+- ADD NOTES ABOUT MERGE
 
 This uses [Webpack](https://webpack.js.org/) and [ThemeKit](https://github.com/Shopify/node-themekit) to make development Shopify themes just a list easier.
 

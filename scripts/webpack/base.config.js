@@ -110,7 +110,6 @@ module.exports = (config) => {
       transformLiquidPlugin(),
 
       // This should be last (it handles syncing files to shopify during development)
-      //config.isDevelopment ? new ThemekitSyncPlugin() : false,
       new ThemekitSyncPlugin(),
     ].filter(Boolean),
   };

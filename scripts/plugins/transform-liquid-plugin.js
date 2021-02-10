@@ -71,7 +71,7 @@ const replaceBlock = (block) => {
   return replacedBlock;
 };
 
-const buildSchema = ({ title, schema }) => {
+const buildSchema = ({ title, schema, merge }) => {
   let json = readSchemaJSON(schema);
 
   // Replace the schema name
@@ -84,6 +84,27 @@ const buildSchema = ({ title, schema }) => {
 
   if (json.settings) {
     json.settings = replaceSettings(json.settings);
+  }
+
+  if (merge) {
+    const related = readSchemaJSON(merge);
+
+    // If include is just an array, then treat them
+    // as settings.
+    if (Array.isArray(related)) {
+      related.settings = related;
+      related.blocks = [];
+    }
+
+    if (related.settings && related.settings.length > 0) {
+      const relatedSettings = replaceSettings(related.settings);
+      json.settings = json.settings.concat(relatedSettings);
+    }
+
+    if (related.blocks && related.blocks.length > 0) {
+      const relatedBlocks = related.blocks.map(replaceBlock);
+      json.blocks = (json.blocks || []).concat(relatedBlocks);
+    }
   }
 
   return JSON.stringify(json, null, 2);
