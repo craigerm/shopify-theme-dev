@@ -29,7 +29,7 @@ const replaceSettings = (settings) => {
   let updatedSettings = [];
 
   settings.forEach((obj) => {
-    // If it's an includ we "flatten" the schema and only add the settings,
+    // If it's an include we "flatten" the schema and only add the settings,
     // since it won't work if include object type information."
     if (typeof obj === "string") {
       assertPartialName(obj);
@@ -47,31 +47,6 @@ const replaceSettings = (settings) => {
   });
 
   return updatedSettings;
-
-  //return settings.map((setting) => {
-  //  if (typeof setting === "string") {
-  //    assertPartialName(setting);
-  //    setting = readSchemaJSON(setting);
-
-  //    if (setting.name == "Image Panels") {
-  //      console.log("GOT SETTINGS", setting);
-  //    }
-  //  }
-
-  //  if (typeof setting !== "object") {
-  //    throw new Error(
-  //      `Settings must be an array of objects or  partial strings, like "_image-list"`
-  //    );
-  //  }
-
-  //  //if (setting.name == "Image Panels") {
-  //  //  console.log("WE HAVE IMAGE PANELS");
-  //  //  console.log;
-  //  //  console.log(setting);
-  //  //}
-
-  //  return setting;
-  //});
 };
 
 // If block is a string, like "_image-list"
@@ -107,10 +82,9 @@ const buildSchema = ({ title, schema }) => {
     json.blocks = json.blocks.map(replaceBlock);
   }
 
-  // Debug
-  //if (title === "Product - Features") {
-  //  console.log(json);
-  //}
+  if (json.settings) {
+    json.settings = replaceSettings(json.settings);
+  }
 
   return JSON.stringify(json, null, 2);
 };
