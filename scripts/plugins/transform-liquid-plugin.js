@@ -25,16 +25,48 @@ const readSchemaJSON = (schemaName) => {
   }
 };
 
-const replaceSettings = (settings) => {
+const buildSchemaId = (id, prefix, suffix) => {
+  let newId = prefix ? `${prefix}_${id}` : id;
+  return newId + (suffix || "");
+};
+
+const buildLabel = (label, suffix) => {
+  if (suffix) {
+    return `${label} #${suffix}`;
+  }
+  return label;
+};
+
+const updateNames = (schema, prefix, suffix) => {
+  if (schema.id) {
+    schema.id = buildSchemaId(schema.id, prefix, suffix);
+    schema.label = buildLabel(schema.label, suffix);
+  } else if (schema.content) {
+    schema.content = buildLabel(schema.content, suffix);
+  }
+  return schema;
+};
+
+const replaceSettings = (settings, prefix, suffix) => {
   let updatedSettings = [];
 
   settings.forEach((obj) => {
     // If it's an include we "flatten" the schema and only add the settings,
     // since it won't work if include object type information."
     if (typeof obj === "string") {
-      assertPartialName(obj);
-      const schemaData = readSchemaJSON(obj);
-      updatedSettings = updatedSettings.concat(schemaData);
+      let partialName = obj;
+
+      if (obj.indexOf("#") !== -1) {
+        [partialName, prefix, suffix] = obj.split("#");
+      }
+
+      assertPartialName(partialName);
+      let schemaData = readSchemaJSON(partialName);
+      schemaData.forEach((schema) => updateNames(schema, prefix, suffix));
+
+      // Recursive
+      const newSettings = replaceSettings(schemaData, prefix, suffix);
+      updatedSettings = updatedSettings.concat(newSettings);
       return;
     }
 
@@ -43,6 +75,7 @@ const replaceSettings = (settings) => {
         `Settings must be an array of objects or partial strings, like "_image-list"`
       );
     }
+
     updatedSettings.push(obj);
   });
 
@@ -113,6 +146,11 @@ const buildSchema = ({ title, schema, merge }) => {
 const transformSections = (content, absoluteFrom) => {
   if (absoluteFrom.endsWith(".yml")) {
     const shortFileName = "src/" + absoluteFrom.split("/src/")[1];
+
+    //if (shortFileName !== "src/sections/page-landing.yml") {
+    //  return content;
+    //}
+
     console.log(`Transforming yml to liquid ("${shortFileName}")`);
 
     const textContent = content.toString();
