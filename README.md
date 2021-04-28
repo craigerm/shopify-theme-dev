@@ -1,20 +1,16 @@
-# Shopify theme development - workflow helpers (WIP)
+NOTE: This is a work in progress and is not stable as of yet.
 
-TODO
--ADD DOCS ABOUT PARTIALS, ETC.
--COPY SECTIONS WHEN SCHEMA FILE CHANGE
--OPTION TO INCLUDE ONLY SETTINGS FROM BLOCK  (automatically ?)
-- `assign_product`: true | false
-- `assign_collection`: true | false
-- ADD NOTES ABOUT MERGE
+# Shopify theme development
 
 This uses [Webpack](https://webpack.js.org/) and [ThemeKit](https://github.com/Shopify/node-themekit) to make development Shopify themes just a list easier.
 
 It is intended to work with traditional Shopify themes and is not meant to be used when doing Shopify headless builds, etc.
 
-## Painpoints hoping to solve
+## Pain points hoping to solve
 When using several templates that share the same schema settings - but set in each section directly - it gets
 difficult to maintain, since you have to change them in each section. The same issue for `content block` types.
+
+Or if you have block settings that you want to be shared and updated in one place.
 
 ## Goals
 - Allow working with modern javascript and CSS (no typescript support planned though)
@@ -25,9 +21,8 @@ difficult to maintain, since you have to change them in each section. The same i
 
 ## Usage
 
-- Install package (WIP)
 - Add `yarn start` mapped to `shopify-theme-dev.js start` in your `package.json`
-- Add `yarn build` mapped to `shopify-theme-dev.js start` in your `package.json` (WIP)
+- Add `yarn build` mapped to `shopify-theme-dev.js build` in your `package.json` (WIP)
 
 ## Working with Section Schemas
 
@@ -65,6 +60,88 @@ The above example will result in:
 {% endschema %}
 ```
 It will include the contents of: `src/schemas/cms.json`
+
+### Partial Schemas
+
+You can create a partial schema with an underscore (e.g. `src/schemas/_icons.json`) and include it in any other schema file. It will be injected inside that schema.
+
+Example:
+
+Icon partial (`src/schemas/_icons.json`):
+```json
+[
+  {
+    "type": "select",
+    "id": "icon",
+    "label": "Icon",
+    "default": "",
+    "options": [
+      { "value": "icon-chevron", "label": "Chevron Icon" },
+      { "value": "icon-star", "label": "Star Icon" }
+    ]
+  }
+]
+
+```
+
+Schema file (`src/schemas/featured-section.json`)
+```json
+{
+  "name": "$PAGE_TITLE",
+  "max_blocks": 3,
+  "blocks": [
+    {
+      "type": "product_item",
+      "name": "Product",
+      "settings": [
+        "_icons"
+      ]
+    }
+  ]
+}
+```
+
+You can also a suffix and a prefix (usually a number) to the partial to change the id and label of the generated schema.
+
+For example, including multiple icons in settings:
+```json
+{
+  "name": "Featured Section",
+  "settings": [
+    "_icons#featured#1",
+    "_icons#featured#1"
+  ]
+}
+```
+
+This will results in the following schema:
+```json
+{
+  "name": "Featured Section",
+  "settings": [
+    {
+      "type": "select",
+      "id": "icon_featured1",
+      "label": "Icon #1",
+      "default": "",
+      "options": [
+        { "value": "icon-chevron", "label": "Chevron Icon" },
+        { "value": "icon-star", "label": "Star Icon" }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "icon_featured2",
+      "label": "Icon #2",
+      "default": "",
+      "options": [
+        { "value": "icon-chevron", "label": "Chevron Icon" },
+        { "value": "icon-star", "label": "Star Icon" }
+      ]
+    }
+  ]
+}
+```
 
 ## License
 
