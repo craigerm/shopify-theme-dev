@@ -165,7 +165,18 @@ const transformSections = (content, absoluteFrom) => {
     const sectionContents = [];
     const assigns = ["section: section"];
 
-    if (config.assign_selected_variant == true) {
+    if (config.assign_current_variant == true) {
+      sectionContents.push("{% if product.selected_variant %}");
+      sectionContents.push(
+        "{%   assign current_variant = product.selected_variant %}"
+      );
+      sectionContents.push("{% else %}");
+      sectionContents.push(
+        "{%   assign current_variant = product.variants | first %}"
+      );
+      sectionContents.push("{% endif %}");
+      assigns.push("current_variant: current_variant");
+    } else if (config.assign_selected_variant == true) {
       sectionContents.push(
         "{% assign selected_variant = product.selected_or_first_available_variant %}"
       );
