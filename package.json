@@ -37,7 +37,6 @@
     "postcss-preset-env": "^6.7.0",
     "postcss-safe-parser": "^5.0.2",
     "sass-loader": "^10.1.1",
-    "shopify-theme-dev": "file:../shopify-theme-dev",
     "style-loader": "^2.0.0",
     "webpack": "^5.13.0",
     "webpack-cli": "^4.3.1",
