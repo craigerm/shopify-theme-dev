@@ -19,7 +19,8 @@ class AppVersionPlugin {
             throw error;
           }
 
-          const version = stdout.split("\n")[0];
+          const date = new Date().toISOString().split("T")[0];
+          const version = stdout.split("\n")[0] + "-" + date;
           const content = [
             `<!-- ${version} -->`,
             `<script type="text/javascript">console.log("${version}")</script>`,
