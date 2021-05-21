@@ -5,6 +5,7 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const paths = require("../utils/paths");
 const ThemekitSyncPlugin = require("../plugins/themekit-sync-plugin");
 const transformLiquidPlugin = require("../plugins/transform-liquid-plugin");
+const AppVersionPlugin = require("../plugins/app-version-plugin");
 
 const createJsRule = (config) => {
   return {
@@ -108,6 +109,9 @@ module.exports = (config) => {
 
       // Copies all the liquid/etc files and transforms yml config files into liquid files
       transformLiquidPlugin(),
+
+      // Set verison before we upload to Shopfiy (but only in production)
+      config.isDevelopment ? undefined : new AppVersionPlugin(),
 
       // This should be last (it handles syncing files to shopify during development)
       new ThemekitSyncPlugin(),
