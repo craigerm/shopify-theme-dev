@@ -3,12 +3,24 @@
 const chalk = require("chalk");
 const figures = require("figures");
 const themekit = require("@shopify/themekit");
+const fs = require("fs");
+const path = require("path");
 const paths = require("../utils/paths");
 const config = require("../utils/config");
 
 const PLUGIN_NAME = "ThemekitSyncPlugin";
 
-const ignoreFiles = ["config/settings_data.json"];
+const ignores = fs.readFileSync(
+  path.join(process.cwd(), ".themekit_ignores"),
+  "utf8"
+);
+
+const customIgnores = ignores
+  .split("\n")
+  .filter((x) => !x.startsWith("#") && x !== "")
+  .map((x) => x.trim());
+
+const ignoreFiles = ["config/settings_data.json"].concat(customIgnores);
 
 let isFirstCompile = true;
 
