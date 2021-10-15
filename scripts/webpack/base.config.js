@@ -1,4 +1,6 @@
 const webpack = require("webpack");
+const fs = require("fs");
+const path = require("path");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
@@ -6,6 +8,23 @@ const paths = require("../utils/paths");
 const ThemekitSyncPlugin = require("../plugins/themekit-sync-plugin");
 const transformLiquidPlugin = require("../plugins/transform-liquid-plugin");
 const AppVersionPlugin = require("../plugins/app-version-plugin");
+
+const getBundles = () => {
+  const names = fs
+    .readdirSync(paths.jsFolder)
+    .filter((x) => x.startsWith("bundle."));
+
+  const map = {};
+
+  names.forEach((name) => {
+    const bundleName = name.split(".js")[0];
+    const srcFile = path.resolve(paths.srcFolder, "js", name);
+    map[bundleName] = srcFile;
+  });
+  return map;
+};
+
+const jsBundles = getBundles();
 
 const createJsRule = (config) => {
   return {
@@ -71,7 +90,7 @@ module.exports = (config) => {
   return {
     mode: config.environment,
     entry: {
-      theme: paths.themeBundleJs,
+      ...jsBundles,
     },
     output: {
       path: paths.distFolder,
@@ -80,6 +99,13 @@ module.exports = (config) => {
     module: {
       rules: [createJsRule(config), createCssRule(config)],
     },
+    optimization: {
+      splitChunks: {
+        name: "bundle.common",
+        chunks: "all",
+      },
+    },
+
     plugins: [
       // Clean up the dist folder so we start from scratch when we start up
       new CleanWebpackPlugin(),
@@ -89,23 +115,6 @@ module.exports = (config) => {
         filename: "assets/[name].css",
         chunkFilename: "assets/[id]-chunk.css",
       }),
-
-      // We don't need to create these right now,
-      // but possibly later.
-      //
-      //// Create a snippet of our JS tags
-      //new HtmlWebpackPlugin({
-      //  inject: false,
-      //  filename: "snippets/script-tags.liquid",
-      //  template: paths.scriptIncludesFolder + "/script-tags.html",
-      //}),
-
-      //// Create a snippet of our css tags
-      //new HtmlWebpackPlugin({
-      //  inject: false,
-      //  filename: "snippets/style-tags.liquid",
-      //  template: paths.scriptIncludesFolder + "/style-tags.html",
-      //}),
 
       // Copies all the liquid/etc files and transforms yml config files into liquid files
       transformLiquidPlugin(),
