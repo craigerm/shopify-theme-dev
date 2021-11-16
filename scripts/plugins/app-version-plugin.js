@@ -5,6 +5,26 @@ const paths = require("../utils/paths");
 
 const PLUGIN_NAME = "AppVersionPlugin";
 
+const getVersion = async () => {
+  console.log("PROCESS DEV", process.env.NODE_ENV);
+
+  if (process.env.NODE_ENV === "development") {
+    return "development";
+  }
+
+  return new Promise((resolve, reject) => {
+    exec("git describe", (error, stdout, _stderr) => {
+      if (error) {
+        reject(error);
+        return;
+      }
+
+      const date = new Date().toISOString().split("T")[0];
+      const version = stdout.split("\n")[0] + "-" + date;
+      resolve(version);
+    });
+  });
+};
 class AppVersionPlugin {
   constructor(options) {
     this.options = options;
@@ -14,24 +34,20 @@ class AppVersionPlugin {
     compiler.hooks.afterEmit.tapAsync(
       PLUGIN_NAME,
       async (_compilation, callback) => {
-        exec("git describe", (error, stdout, _stderr) => {
-          if (error) {
-            throw error;
-          }
+        const version = await getVersion();
+        const content = [
+          '<script type="text/javascript">',
+          `window.APP_VERSION = "${version}";`,
+          "console.log(window.APP_VERSION);",
+          "</script>",
+        ].join("\n");
 
-          const date = new Date().toISOString().split("T")[0];
-          const version = stdout.split("\n")[0] + "-" + date;
-          const content = [
-            `<!-- ${version} -->`,
-            `<script type="text/javascript">console.log("${version}")</script>`,
-          ].join("\n");
+        fs.writeFileSync(
+          path.join(paths.distFolder, "snippets", "app-version.liquid"),
+          content
+        );
 
-          fs.writeFileSync(
-            path.join(paths.distFolder, "snippets", "app-version.liquid"),
-            content
-          );
-          callback();
-        });
+        callback();
       }
     );
   }
