@@ -21,7 +21,8 @@ const readSchemaJSON = (schemaName) => {
     return JSON.parse(fs.readFileSync(schemaFile, "utf8"));
   } catch (err) {
     console.log(chalk.redBright(`ERROR: Failed to parse ${schemaName}.json`));
-    throw err;
+    throw `ERROR Failed to parse ${schemaName}.json => ${err.message}`;
+    //throw err;
   }
 };
 
@@ -98,8 +99,14 @@ const replaceBlock = (block) => {
     );
   }
 
-  // Replace all block settings if any
-  replacedBlock.settings = replaceSettings(replacedBlock.settings);
+  try {
+    // Replace all block settings if any
+    replacedBlock.settings = replaceSettings(replacedBlock.settings);
+  } catch (e) {
+    console.error("WHAT IS THIS STUFF", replacedBlock);
+    console.error("BLOCK", block);
+    throw e;
+  }
 
   return replacedBlock;
 };
@@ -147,6 +154,10 @@ const transformSections = (content, absoluteFrom) => {
   if (absoluteFrom.endsWith(".yml")) {
     const shortFileName = "src/" + absoluteFrom.split("/src/")[1];
 
+    //if (shortFileName !== "src/sections/product-badges.yml") {
+    //  return content;
+    //}
+    //console.log("FILENAME: %s", shortFilName);
     //if (shortFileName !== "src/sections/page-landing.yml") {
     //  return content;
     //}
@@ -196,7 +207,17 @@ const transformSections = (content, absoluteFrom) => {
     );
 
     sectionContents.push("{% schema %}");
-    sectionContents.push(buildSchema(config).trim());
+
+    try {
+      sectionContents.push(buildSchema(config).trim());
+    } catch (e) {
+      console.error(
+        "Caught error building schema for file %s => ",
+        absoluteFrom,
+        config
+      );
+      throw e;
+    }
     sectionContents.push("{% endschema %}\n");
 
     return sectionContents.join("\n");

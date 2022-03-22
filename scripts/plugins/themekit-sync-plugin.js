@@ -25,7 +25,7 @@ const ignoreFiles = ["config/settings_data.json"].concat(customIgnores);
 let isFirstCompile = true;
 
 let flags = { env: config.environment, ignoredFiles: ignoreFiles };
-let options = { cwd: paths.distFolder };
+let options = { cwd: paths.distFolder, logLevel: "all" };
 
 let changedAssets = [];
 

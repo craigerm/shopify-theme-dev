@@ -12,6 +12,7 @@ module.exports = {
   // Source folders
   srcFolder: srcFolder,
   scriptsFolder: path.resolve(srcFolder, "scripts"),
+  scriptsFolder: path.resolve(srcFolder, "scripts"),
   jsFolder: path.resolve(srcFolder, "js"),
   cssFolder: path.resolve(srcFolder, "css"),
   includesFolder: path.resolve(srcFolder, "includes"),
@@ -22,6 +23,7 @@ module.exports = {
 
   // Build+dist folders
   distFolder: distFolder,
+  distSnippetsFolder: path.resolve(distFolder, "snippets"),
 
   // Bundles
   themeBundleJs: path.resolve(srcFolder, "js", "theme.js"),

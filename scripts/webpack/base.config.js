@@ -8,6 +8,7 @@ const paths = require("../utils/paths");
 const ThemekitSyncPlugin = require("../plugins/themekit-sync-plugin");
 const transformLiquidPlugin = require("../plugins/transform-liquid-plugin");
 const AppVersionPlugin = require("../plugins/app-version-plugin");
+const LiquidChunksPlugin = require("../plugins/liquid-chunks-plugin");
 
 const getBundles = () => {
   const names = fs
@@ -89,6 +90,8 @@ const createCssRule = (config) => {
 module.exports = (config) => {
   return {
     mode: config.environment,
+    //devtool: config.isDevelopment ? undefined : "source-map",
+    devtool: undefined,
     entry: {
       ...jsBundles,
     },
@@ -101,8 +104,21 @@ module.exports = (config) => {
     },
     optimization: {
       splitChunks: {
-        name: "bundle.common",
-        chunks: "all",
+        cacheGroups: {
+          name: false,
+          "vendor-react": {
+            test: /[\\/]node_modules[\\/](react|react-dom)[\\/]/,
+            name: "vendor-react",
+            chunks: "all",
+          },
+          "common-chunk": {
+            chunks: "all",
+            name: "common-chunk",
+            minChunks: 3,
+            minSize: 100000,
+            maxSize: 200000,
+          },
+        },
       },
     },
 
@@ -119,8 +135,10 @@ module.exports = (config) => {
       // Copies all the liquid/etc files and transforms yml config files into liquid files
       transformLiquidPlugin(),
 
+      new LiquidChunksPlugin(),
+
       // Set verison before we upload to Shopfiy (but only in production)
-      config.isDevelopment ? undefined : new AppVersionPlugin(),
+      new AppVersionPlugin(),
 
       // This should be last (it handles syncing files to shopify during development)
       new ThemekitSyncPlugin(),
