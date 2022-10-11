@@ -21,13 +21,35 @@ class LiquidChunksPlugin {
           paths.distSnippetsFolder,
           "common-chunks-js.liquid"
         );
+        const preloadSnippetFile = path.join(
+          paths.distSnippetsFolder,
+          "script-preloads.liquid"
+        );
 
         const commonFiles = fs.readdirSync(assetsFolder).filter((x) => {
           return chunkExpr.test(x);
         });
 
-        console.log(commonFiles);
+        //console.log(commonFiles);
 
+        let preloads = [
+          `<link rel="preload" href="{{ 'bundle.theme.css' | asset_url }}" as="style">`,
+        ];
+
+        // Save script preloads
+        const jsPreloads = commonFiles.map((filename) => {
+          return `<link rel="preload" href="{{ '${filename}' | asset_url }}" as="script">`;
+        });
+
+        jsPreloads.push(
+          `<link rel="preload" href="{{ 'bundle.theme.js' | asset_url }}" as="script">`
+        );
+
+        preloads = preloads.concat(jsPreloads);
+        fs.mkdirSync(paths.distSnippetsFolder, { recursive: true });
+        fs.writeFileSync(preloadSnippetFile, preloads.join("\n"));
+
+        // Save script includes
         const content = commonFiles
           .map((filename) => {
             return `<script src="{{ '${filename}' | asset_url }}" defer="defer"></script>`;

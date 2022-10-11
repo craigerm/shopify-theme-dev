@@ -13,14 +13,17 @@ const spawn = require("cross-spawn");
 const args = process.argv.slice(2);
 const cmd = args[0];
 
-if (["start", "build"].indexOf(cmd) == -1) {
+if (["init", "start", "build"].indexOf(cmd) == -1) {
   console.log(`Command "${cmd}" not supported.`);
   process.exit(1);
 }
 
+const passedArgs = args.slice(1);
 const script = require.resolve(`../scripts/${cmd}.js`);
 
-const result = spawn.sync(process.execPath, [script], { stdio: "inherit" });
+const result = spawn.sync(process.execPath, [script, ...passedArgs], {
+  stdio: "inherit",
+});
 
 if (result.signal) {
   console.log("Spawning script failed for some reason.");

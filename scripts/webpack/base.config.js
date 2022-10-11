@@ -1,14 +1,16 @@
 const webpack = require("webpack");
 const fs = require("fs");
 const path = require("path");
-const { CleanWebpackPlugin } = require("clean-webpack-plugin");
+//const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const paths = require("../utils/paths");
 const ThemekitSyncPlugin = require("../plugins/themekit-sync-plugin");
-const transformLiquidPlugin = require("../plugins/transform-liquid-plugin");
+//const transformLiquidPlugin = require("../plugins/transform-liquid-plugin");
 const AppVersionPlugin = require("../plugins/app-version-plugin");
 const LiquidChunksPlugin = require("../plugins/liquid-chunks-plugin");
+const TransformThemeFilesPLugin = require("../plugins/transform-theme-files-plugin");
+const CleanupPlugin = require("../plugins/cleanup-plugin");
 
 const getBundles = () => {
   const names = fs
@@ -124,7 +126,7 @@ module.exports = (config) => {
 
     plugins: [
       // Clean up the dist folder so we start from scratch when we start up
-      new CleanWebpackPlugin(),
+      new CleanupPlugin(),
 
       // Extract the css file
       new MiniCssExtractPlugin({
@@ -133,7 +135,7 @@ module.exports = (config) => {
       }),
 
       // Copies all the liquid/etc files and transforms yml config files into liquid files
-      transformLiquidPlugin(),
+      new TransformThemeFilesPLugin(),
 
       new LiquidChunksPlugin(),
 
