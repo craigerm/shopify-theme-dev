@@ -3,9 +3,8 @@ const fs = require("fs");
 const paths = require("../utils/paths");
 
 const PLUGIN_NAME = "LiquidChunksPlugin";
-const chunkPrefix = "common-chunk-";
 
-const chunkExpr = /^common-chunk-\S+\.js$/;
+const chunkExpr = /^chunk-\S+\.js$/;
 
 class LiquidChunksPlugin {
   constructor(options) {
@@ -29,8 +28,6 @@ class LiquidChunksPlugin {
         const commonFiles = fs.readdirSync(assetsFolder).filter((x) => {
           return chunkExpr.test(x);
         });
-
-        //console.log(commonFiles);
 
         let preloads = [
           `<link rel="preload" href="{{ 'bundle.theme.css' | asset_url }}" as="style">`,

@@ -89,10 +89,10 @@ const createCssRule = (config) => {
   };
 };
 
+//devtool: config.isDevelopment ? undefined : "source-map",
 module.exports = (config) => {
   return {
     mode: config.environment,
-    //devtool: config.isDevelopment ? undefined : "source-map",
     devtool: undefined,
     entry: {
       ...jsBundles,
@@ -110,12 +110,12 @@ module.exports = (config) => {
           name: false,
           "vendor-react": {
             test: /[\\/]node_modules[\\/](react|react-dom)[\\/]/,
-            name: "vendor-react",
+            name: "chunk-vendor-react",
             chunks: "all",
           },
           "common-chunk": {
             chunks: "all",
-            name: "common-chunk",
+            name: "chunk",
             minChunks: 3,
             minSize: 100000,
             maxSize: 200000,
