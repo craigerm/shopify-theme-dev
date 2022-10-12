@@ -1,0 +1,3 @@
+# Ignore any json templates since this file has customizations
+# and not just schema.
+templates/*.json

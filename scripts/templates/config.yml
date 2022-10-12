@@ -1,0 +1,9 @@
+development:
+  password:
+  theme_id:
+
+# Optional (used for build task)
+production:
+  password:
+  theme_id:
+  store:

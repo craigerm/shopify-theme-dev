@@ -6,8 +6,6 @@ const paths = require("../utils/paths");
 const PLUGIN_NAME = "AppVersionPlugin";
 
 const getVersion = async () => {
-  console.log("PROCESS DEV", process.env.NODE_ENV);
-
   if (process.env.NODE_ENV === "development") {
     return "development";
   }
@@ -25,6 +23,7 @@ const getVersion = async () => {
     });
   });
 };
+
 class AppVersionPlugin {
   constructor(options) {
     this.options = options;

@@ -1,8 +1,7 @@
-const fs = require("fs");
+const fs = require("fs-extra");
 const chalk = require("chalk");
 const YAML = require("yaml");
-const CopyWebpackPlugin = require("copy-webpack-plugin");
-const paths = require("../utils/paths");
+const paths = require("../../utils/paths");
 
 const assertPartialName = (name) => {
   if (name[0] !== "_") {
@@ -21,7 +20,8 @@ const readSchemaJSON = (schemaName) => {
     return JSON.parse(fs.readFileSync(schemaFile, "utf8"));
   } catch (err) {
     console.log(chalk.redBright(`ERROR: Failed to parse ${schemaName}.json`));
-    throw err;
+    throw `ERROR Failed to parse ${schemaName}.json => ${err.message}`;
+    //throw err;
   }
 };
 
@@ -98,8 +98,12 @@ const replaceBlock = (block) => {
     );
   }
 
-  // Replace all block settings if any
-  replacedBlock.settings = replaceSettings(replacedBlock.settings);
+  try {
+    // Replace all block settings if any
+    replacedBlock.settings = replaceSettings(replacedBlock.settings);
+  } catch (e) {
+    throw e;
+  }
 
   return replacedBlock;
 };
@@ -143,94 +147,68 @@ const buildSchema = ({ title, schema, merge }) => {
   return JSON.stringify(json, null, 2);
 };
 
-const transformSections = (content, absoluteFrom) => {
-  if (absoluteFrom.endsWith(".yml")) {
-    const shortFileName = "src/" + absoluteFrom.split("/src/")[1];
+const transformSection = (srcFile, destFile) => {
+  const shortFileName = "src/" + srcFile.split("/src/")[1];
+  console.log(chalk.blueBright(`Transforming yml to liquid: ${shortFileName}`));
 
-    //if (shortFileName !== "src/sections/page-landing.yml") {
-    //  return content;
-    //}
+  const content = fs.readFileSync(srcFile);
+  const textContent = content.toString();
+  const config = YAML.parse(textContent);
 
-    console.log(`Transforming yml to liquid ("${shortFileName}")`);
-
-    const textContent = content.toString();
-    const config = YAML.parse(textContent);
-
-    if (!config.include) {
-      throw new Error(
-        `YML config needs an "include" value for: ${absoluteFrom})`
-      );
-    }
-
-    const sectionContents = [];
-    const assigns = ["section: section"];
-
-    if (config.assign_current_variant == true) {
-      sectionContents.push("{% if product.selected_variant %}");
-      sectionContents.push(
-        "{%   assign current_variant = product.selected_variant %}"
-      );
-      sectionContents.push("{% else %}");
-      sectionContents.push(
-        "{%   assign current_variant = product.variants | first %}"
-      );
-      sectionContents.push("{% endif %}");
-      assigns.push("current_variant: current_variant");
-    } else if (config.assign_selected_variant == true) {
-      sectionContents.push(
-        "{% assign selected_variant = product.selected_or_first_available_variant %}"
-      );
-      assigns.push("selected_variant: selected_variant");
-    }
-
-    if (config.assign_product == true) {
-      assigns.push("product: product");
-    }
-
-    if (config.assign_collection == true) {
-      assigns.push("collection: collection");
-    }
-
-    sectionContents.push(
-      `{% include '${config.include}', ${assigns.join(", ")} %}`
-    );
-
-    sectionContents.push("{% schema %}");
-    sectionContents.push(buildSchema(config).trim());
-    sectionContents.push("{% endschema %}\n");
-
-    return sectionContents.join("\n");
+  if (!config.include) {
+    throw new Error(`YML config needs an "include" value for: ${srcFile})`);
   }
-  return content;
+
+  const sectionContents = [];
+  const assigns = ["section: section"];
+
+  if (config.assign_current_variant == true) {
+    sectionContents.push("{% if product.selected_variant %}");
+    sectionContents.push(
+      "{%   assign current_variant = product.selected_variant %}"
+    );
+    sectionContents.push("{% else %}");
+    sectionContents.push(
+      "{%   assign current_variant = product.variants | first %}"
+    );
+    sectionContents.push("{% endif %}");
+    assigns.push("current_variant: current_variant");
+  } else if (config.assign_selected_variant == true) {
+    sectionContents.push(
+      "{% assign selected_variant = product.selected_or_first_available_variant %}"
+    );
+    assigns.push("selected_variant: selected_variant");
+  }
+
+  if (config.assign_product == true) {
+    assigns.push("product: product");
+  }
+
+  if (config.assign_collection == true) {
+    assigns.push("collection: collection");
+  }
+
+  sectionContents.push(
+    `{% include '${config.include}', ${assigns.join(", ")} %}`
+  );
+
+  sectionContents.push("{% schema %}");
+
+  try {
+    sectionContents.push(buildSchema(config).trim());
+  } catch (e) {
+    console.error(
+      "Caught error building schema for file %s => ",
+      absoluteFrom,
+      config
+    );
+    throw e;
+  }
+
+  sectionContents.push("{% endschema %}\n");
+
+  const liquidContent = sectionContents.join("\n");
+  fs.outputFileSync(destFile, liquidContent);
 };
 
-const foldersToCopy = [
-  { name: "config" },
-  { name: "layout" },
-  { name: "locales" },
-  { name: "templates" },
-  { name: "snippets" },
-  {
-    name: "sections",
-    transform: transformSections,
-    to: "sections/[path][name].liquid",
-  },
-  {
-    // Flatten assets
-    from: paths.srcFolder + "/assets/**/*",
-    to: paths.distFolder + "/assets/[name].[ext]",
-  },
-].map((folder) => {
-  return {
-    from: folder.from || paths.srcFolder + "/" + folder.name,
-    to: folder.to || paths.distFolder + "/" + folder.name,
-    transform: folder.transform,
-  };
-});
-
-// Copy the config file to our dist folder
-foldersToCopy.push("config.yml");
-
-module.exports = () => {
-  return new CopyWebpackPlugin({ patterns: foldersToCopy });
-};
+module.exports = transformSection;

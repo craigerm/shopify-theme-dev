@@ -1,13 +1,16 @@
 const webpack = require("webpack");
 const fs = require("fs");
 const path = require("path");
-const { CleanWebpackPlugin } = require("clean-webpack-plugin");
+//const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const paths = require("../utils/paths");
 const ThemekitSyncPlugin = require("../plugins/themekit-sync-plugin");
-const transformLiquidPlugin = require("../plugins/transform-liquid-plugin");
+//const transformLiquidPlugin = require("../plugins/transform-liquid-plugin");
 const AppVersionPlugin = require("../plugins/app-version-plugin");
+const LiquidChunksPlugin = require("../plugins/liquid-chunks-plugin");
+const TransformThemeFilesPLugin = require("../plugins/transform-theme-files-plugin");
+const CleanupPlugin = require("../plugins/cleanup-plugin");
 
 const getBundles = () => {
   const names = fs
@@ -86,9 +89,11 @@ const createCssRule = (config) => {
   };
 };
 
+//devtool: config.isDevelopment ? undefined : "source-map",
 module.exports = (config) => {
   return {
     mode: config.environment,
+    devtool: undefined,
     entry: {
       ...jsBundles,
     },
@@ -101,14 +106,27 @@ module.exports = (config) => {
     },
     optimization: {
       splitChunks: {
-        name: "bundle.common",
-        chunks: "all",
+        cacheGroups: {
+          name: false,
+          "vendor-react": {
+            test: /[\\/]node_modules[\\/](react|react-dom)[\\/]/,
+            name: "chunk-vendor-react",
+            chunks: "all",
+          },
+          "common-chunk": {
+            chunks: "all",
+            name: "chunk",
+            minChunks: 3,
+            minSize: 100000,
+            maxSize: 200000,
+          },
+        },
       },
     },
 
     plugins: [
       // Clean up the dist folder so we start from scratch when we start up
-      new CleanWebpackPlugin(),
+      new CleanupPlugin(),
 
       // Extract the css file
       new MiniCssExtractPlugin({
@@ -117,10 +135,12 @@ module.exports = (config) => {
       }),
 
       // Copies all the liquid/etc files and transforms yml config files into liquid files
-      transformLiquidPlugin(),
+      new TransformThemeFilesPLugin(),
+
+      new LiquidChunksPlugin(),
 
       // Set verison before we upload to Shopfiy (but only in production)
-      config.isDevelopment ? undefined : new AppVersionPlugin(),
+      new AppVersionPlugin(),
 
       // This should be last (it handles syncing files to shopify during development)
       new ThemekitSyncPlugin(),
