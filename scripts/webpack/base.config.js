@@ -106,6 +106,7 @@ module.exports = (config) => {
     },
     optimization: {
       splitChunks: {
+        hidePathInfo: true,
         cacheGroups: {
           name: false,
           "vendor-react": {
