@@ -62,12 +62,14 @@ const syncFileToOutput = (folderName, srcFile, mode, errorOnExist = false) => {
 };
 
 const copyFilesInFolder = (folderName, isDebug) => {
+  const folderPath = path.join(paths.srcFolder, folderName);
+
   if (isDebug) {
     console.log(`[DEBUG] Copying folder: ${folderName}`);
+    console.log(`[DEBUG] Folder path: ${folderPath}`);
   }
 
-  const folderPath = path.join(paths.srcFolder, folderName);
-  const files = glob.sync(folderPath + "/**/*", { nodir: true });
+  const files = glob.sync(path.join(folderPath, "/**/*"), { nodir: true });
 
   for (let i = 0; i < files.length; i++) {
     if (isDebug) {
@@ -127,6 +129,10 @@ class TransformThemeFilesPLugin {
 
     compiler.hooks.afterCompile.tap(PLUGIN_NAME, (_compilation) => {
       if (watchesSetup) {
+        return;
+      }
+
+      if (this.isDebug) {
         return;
       }
 
