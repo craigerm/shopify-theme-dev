@@ -41,6 +41,7 @@ const configValues = {
   isDevelopment: isDevelopment,
   environment: nodeEnv,
   skipFirstDeploy: skipFirstDeploy,
+  isDebug: false,
 };
 
 module.exports = configValues;

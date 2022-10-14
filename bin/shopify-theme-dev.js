@@ -13,7 +13,7 @@ const spawn = require("cross-spawn");
 const args = process.argv.slice(2);
 const cmd = args[0];
 
-if (["init", "start", "build"].indexOf(cmd) == -1) {
+if (["init", "start", "build", "debug"].indexOf(cmd) == -1) {
   console.log(`Command "${cmd}" not supported.`);
   process.exit(1);
 }

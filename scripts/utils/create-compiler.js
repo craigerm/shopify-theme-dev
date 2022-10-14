@@ -104,7 +104,7 @@ const createCompiler = async (config) => {
       console.log(messages.warnings.join("\n\n"));
     }
 
-    if (config.isDevelopment === false) {
+    if (config.isDebug === true || config.isDevelopment === false) {
       process.exit(0);
     }
   });

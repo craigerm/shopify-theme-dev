@@ -61,11 +61,18 @@ const syncFileToOutput = (folderName, srcFile, mode, errorOnExist = false) => {
   throw new Error(`Sync file mode '${mode}' not supported`);
 };
 
-const copyFilesInFolder = (folderName) => {
+const copyFilesInFolder = (folderName, isDebug) => {
+  if (isDebug) {
+    console.log(`[DEBUG] Copying folder: ${folderName}`);
+  }
+
   const folderPath = path.join(paths.srcFolder, folderName);
   const files = glob.sync(folderPath + "/**/*", { nodir: true });
 
   for (let i = 0; i < files.length; i++) {
+    if (isDebug) {
+      console.log(` file: ${files[i]}`);
+    }
     syncFileToOutput(folderName, files[i], "REPLACE", true);
   }
 };
@@ -89,8 +96,8 @@ const syncFile = (filePath, mode) => {
 };
 
 class TransformThemeFilesPLugin {
-  constructor(options) {
-    this.options = options;
+  constructor(isDebug) {
+    this.isDebug = isDebug;
   }
 
   apply(compiler) {
@@ -99,11 +106,15 @@ class TransformThemeFilesPLugin {
         return;
       }
 
+      if (this.isDebug) {
+        console.log(`[DEBUG] Running: ${PLUGIN_NAME}`);
+      }
+
       isFirstCompile = false;
 
       // Copy folders
       for (const folder of foldersToCopy) {
-        copyFilesInFolder(folder);
+        copyFilesInFolder(folder, this.isDebug);
       }
 
       // Copy config file

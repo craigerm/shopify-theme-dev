@@ -126,7 +126,7 @@ module.exports = (config) => {
 
     plugins: [
       // Clean up the dist folder so we start from scratch when we start up
-      new CleanupPlugin(),
+      new CleanupPlugin(config.isDebug),
 
       // Extract the css file
       new MiniCssExtractPlugin({
@@ -135,7 +135,7 @@ module.exports = (config) => {
       }),
 
       // Copies all the liquid/etc files and transforms yml config files into liquid files
-      new TransformThemeFilesPLugin(),
+      new TransformThemeFilesPLugin(config.isDebug),
 
       new LiquidChunksPlugin(),
 
@@ -143,7 +143,7 @@ module.exports = (config) => {
       new AppVersionPlugin(),
 
       // This should be last (it handles syncing files to shopify during development)
-      new ThemekitSyncPlugin(),
+      config.isDebug ? undefined : new ThemekitSyncPlugin(),
     ].filter(Boolean),
   };
 };
