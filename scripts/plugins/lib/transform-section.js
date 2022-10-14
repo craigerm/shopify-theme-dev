@@ -150,7 +150,8 @@ const buildSchema = ({ title, schema, merge }) => {
 };
 
 const transformSection = (srcFile, destFile) => {
-  const shortFileName = "src/" + srcFile.split("/src/")[1];
+  const shortName = srcFile.split(`${path.sep}src${path.sep}`)[1];
+  const shortFileName = path.join("src", shortName);
   console.log(chalk.blueBright(`Transforming yml to liquid: ${shortFileName}`));
 
   const content = fs.readFileSync(srcFile);
