@@ -1,6 +1,5 @@
 const fs = require("fs-extra");
 const chalk = require("chalk");
-const glob = require("glob");
 const chokidar = require("chokidar");
 const paths = require("../utils/paths");
 const path = require("path");
@@ -61,6 +60,21 @@ const syncFileToOutput = (folderName, srcFile, mode, errorOnExist = false) => {
   throw new Error(`Sync file mode '${mode}' not supported`);
 };
 
+const getAllFilesRecursively = (folder, files = []) => {
+  const dirFiles = fs.readdirSync(folder);
+
+  for (f of dirFiles) {
+    const fullPath = path.join(folder, f);
+    if (fs.statSync(fullPath).isDirectory()) {
+      files = getAllFilesRecursively(fullPath, files);
+    } else {
+      files.push(fullPath);
+    }
+  }
+
+  return files;
+};
+
 const copyFilesInFolder = (folderName, isDebug) => {
   const folderPath = path.join(paths.srcFolder, folderName);
 
@@ -69,7 +83,13 @@ const copyFilesInFolder = (folderName, isDebug) => {
     console.log(`[DEBUG] Folder path: ${folderPath}`);
   }
 
-  const files = glob.sync(path.join(folderPath, "/**/*"), { nodir: true });
+  const files = getAllFilesRecursively(folderPath);
+
+  if (files.length === 0) {
+    if (isDebug) {
+      console.log("No matching files in folder.");
+    }
+  }
 
   for (let i = 0; i < files.length; i++) {
     if (isDebug) {
