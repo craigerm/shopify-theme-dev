@@ -107,7 +107,9 @@ class TransformThemeFilesPLugin {
       }
 
       if (this.isDebug) {
-        console.log(`[DEBUG] Running: ${PLUGIN_NAME}`);
+        console.log(
+          chalk.bold.blueBright(`[DEBUG] Running plugin ${PLUGIN_NAME}`)
+        );
       }
 
       isFirstCompile = false;
