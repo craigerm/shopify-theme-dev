@@ -199,7 +199,7 @@ const transformSection = (srcFile, destFile) => {
   } catch (e) {
     console.error(
       "Caught error building schema for file %s => ",
-      absoluteFrom,
+      srcFile,
       config
     );
     throw e;
