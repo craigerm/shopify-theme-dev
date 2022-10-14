@@ -30,7 +30,7 @@ const syncFileToOutput = (folderName, srcFile, mode, errorOnExist = false) => {
 
   let partialPath = shouldFlatten
     ? path.basename(srcFile)
-    : srcFile.split(srcFolder + "/")[1];
+    : srcFile.split(srcFolder + path.sep)[1];
 
   const isSectionTransform =
     folderName === "sections" && path.extname(srcFile) === ".yml";
@@ -100,10 +100,10 @@ const copyFilesInFolder = (folderName, isDebug) => {
 };
 
 const syncFile = (filePath, mode) => {
-  const localPath = filePath.split(paths.srcFolder + "/")[1];
+  const localPath = filePath.split(paths.srcFolder + path.sep)[1];
 
   for (let folder of foldersToCopy) {
-    const p = folder + "/";
+    const p = folder + path.sep;
 
     if (localPath.startsWith(p)) {
       console.log(chalk.blueBright(`[${mode}] ${localPath}`));
