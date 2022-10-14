@@ -1,4 +1,5 @@
 const fs = require("fs-extra");
+const path = require("path");
 const chalk = require("chalk");
 const YAML = require("yaml");
 const paths = require("../../utils/paths");
@@ -12,7 +13,8 @@ const assertPartialName = (name) => {
 };
 
 const readSchemaJSON = (schemaName) => {
-  const schemaFile = paths.schemasFolder + "/" + schemaName + ".json";
+  const schemaFile = path.join(paths.schemasFolder, schemaName + ".json");
+
   if (!fs.existsSync(schemaFile)) {
     throw new Error(`No schema exists for "${schemaFile}""`);
   }
