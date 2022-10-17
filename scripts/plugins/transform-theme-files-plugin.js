@@ -48,10 +48,11 @@ const syncFileToOutput = (folderName, srcFile, mode, errorOnExist = false) => {
 
   if (mode === "REPLACE") {
     if (isSectionTransform) {
-      transformSection(srcFile, destFile);
+      destFile = transformSection(srcFile, destFile);
     } else {
       fs.copySync(srcFile, destFile, { errorOnExist: errorOnExist });
     }
+
     return destFile;
   }
 
@@ -59,6 +60,7 @@ const syncFileToOutput = (folderName, srcFile, mode, errorOnExist = false) => {
     fs.removeSync(destFile);
     return destFile;
   }
+
   throw new Error(`Sync file mode '${mode}' not supported`);
 };
 

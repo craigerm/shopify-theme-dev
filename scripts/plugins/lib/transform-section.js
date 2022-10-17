@@ -243,6 +243,7 @@ const transformSection = (srcFile, destFile) => {
 
   const liquidContent = sectionContents.join("\n");
   fs.outputFileSync(destFile, liquidContent);
+  return destFile;
 };
 
 module.exports = transformSection;
