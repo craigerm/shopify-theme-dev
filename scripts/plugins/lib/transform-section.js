@@ -39,10 +39,10 @@ const buildLabel = (label, suffix) => {
   return label;
 };
 
-const updateNames = (schema, prefix, suffix) => {
+const updateNames = (schema, prefix, suffix, label) => {
   if (schema.id) {
     schema.id = buildSchemaId(schema.id, prefix, suffix);
-    schema.label = buildLabel(schema.label, suffix);
+    schema.label = label || buildLabel(schema.label, suffix, label);
   } else if (schema.content) {
     schema.content = buildLabel(schema.content, suffix);
   }
@@ -57,14 +57,17 @@ const replaceSettings = (settings, prefix, suffix) => {
     // since it won't work if include object type information."
     if (typeof obj === "string") {
       let partialName = obj;
+      let label = "";
 
       if (obj.indexOf("#") !== -1) {
-        [partialName, prefix, suffix] = obj.split("#");
+        [partialName, prefix, suffix, label] = obj.split("#");
       }
 
       assertPartialName(partialName);
       let schemaData = readSchemaJSON(partialName);
-      schemaData.forEach((schema) => updateNames(schema, prefix, suffix));
+      schemaData.forEach((schema) =>
+        updateNames(schema, prefix, suffix, label)
+      );
 
       // Recursive
       const newSettings = replaceSettings(schemaData, prefix, suffix);
