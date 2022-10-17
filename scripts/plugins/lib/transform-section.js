@@ -2,6 +2,7 @@ const fs = require("fs-extra");
 const path = require("path");
 const chalk = require("chalk");
 const YAML = require("yaml");
+const yamlFront = require("yaml-front-matter");
 const paths = require("../../utils/paths");
 
 const assertPartialName = (name) => {
@@ -157,48 +158,75 @@ const transformSection = (srcFile, destFile) => {
   const shortFileName = path.join("src", shortName);
   console.log(chalk.blueBright(`Transforming yml to liquid: ${shortFileName}`));
 
+  const isYAML = path.extname(shortName) === ".yml";
+
   const content = fs.readFileSync(srcFile);
   const textContent = content.toString();
-  const config = YAML.parse(textContent);
-
-  if (!config.include) {
-    throw new Error(`YML config needs an "include" value for: ${srcFile})`);
-  }
 
   const sectionContents = [];
-  const assigns = ["section: section"];
 
-  if (config.assign_current_variant == true) {
-    sectionContents.push("{% if product.selected_variant %}");
+  let config = null;
+
+  if (isYAML) {
+    config = YAML.parse(textContent);
+
+    if (!config.include) {
+      throw new Error(`YML config needs an "include" value for: ${srcFile})`);
+    }
+
+    const assigns = ["section: section"];
+
+    if (config.assign_current_variant == true) {
+      sectionContents.push("{% if product.selected_variant %}");
+      sectionContents.push(
+        "{%   assign current_variant = product.selected_variant %}"
+      );
+      sectionContents.push("{% else %}");
+      sectionContents.push(
+        "{%   assign current_variant = product.variants | first %}"
+      );
+      sectionContents.push("{% endif %}");
+      assigns.push("current_variant: current_variant");
+    } else if (config.assign_selected_variant == true) {
+      sectionContents.push(
+        "{% assign selected_variant = product.selected_or_first_available_variant %}"
+      );
+      assigns.push("selected_variant: selected_variant");
+    }
+
+    if (config.assign_product == true) {
+      assigns.push("product: product");
+    }
+
+    if (config.assign_collection == true) {
+      assigns.push("collection: collection");
+    }
+
     sectionContents.push(
-      "{%   assign current_variant = product.selected_variant %}"
+      `{% include '${config.include}', ${assigns.join(", ")} %}`
     );
-    sectionContents.push("{% else %}");
-    sectionContents.push(
-      "{%   assign current_variant = product.variants | first %}"
+  } else {
+    config = yamlFront.loadFront(textContent);
+
+    let content = config.__content;
+
+    if (content[0] === "\n") {
+      content = content.slice(1);
+    }
+
+    sectionContents.push(content);
+    destFile = path.join(
+      path.dirname(destFile),
+      path.basename(destFile).slice(1)
     );
-    sectionContents.push("{% endif %}");
-    assigns.push("current_variant: current_variant");
-  } else if (config.assign_selected_variant == true) {
-    sectionContents.push(
-      "{% assign selected_variant = product.selected_or_first_available_variant %}"
-    );
-    assigns.push("selected_variant: selected_variant");
   }
-
-  if (config.assign_product == true) {
-    assigns.push("product: product");
-  }
-
-  if (config.assign_collection == true) {
-    assigns.push("collection: collection");
-  }
-
-  sectionContents.push(
-    `{% include '${config.include}', ${assigns.join(", ")} %}`
-  );
 
   sectionContents.push("{% schema %}");
+
+  if (!config) {
+    console.error(`Could not generate config for ${shortFileName}`);
+    process.exit(1);
+  }
 
   try {
     sectionContents.push(buildSchema(config).trim());

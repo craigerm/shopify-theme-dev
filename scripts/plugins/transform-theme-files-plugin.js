@@ -32,14 +32,16 @@ const syncFileToOutput = (folderName, srcFile, mode, errorOnExist = false) => {
     ? path.basename(srcFile)
     : srcFile.split(srcFolder + path.sep)[1];
 
-  const isSectionTransform =
-    folderName === "sections" && path.extname(srcFile) === ".yml";
+  let isSectionTransform = false;
 
-  if (isSectionTransform) {
+  if (folderName === "sections" && path.extname(srcFile) === ".yml") {
+    isSectionTransform = true;
     partialPath = path.join(
       path.dirname(partialPath),
       path.basename(partialPath, ".yml") + ".liquid"
     );
+  } else if (folderName === "sections" && path.basename(srcFile)[0] === "_") {
+    isSectionTransform = true;
   }
 
   destFile = path.join(destPath, partialPath);
