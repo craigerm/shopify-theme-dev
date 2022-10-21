@@ -2,7 +2,6 @@
 // to the themekit library to deploy the full theme or partial changes.
 const chalk = require("chalk");
 const figures = require("figures");
-const config = require("../utils/config");
 const { deploy, syncFiles } = require("./lib/themkit-cli");
 
 const PLUGIN_NAME = "ThemekitSyncPlugin";
@@ -11,11 +10,13 @@ let isFirstCompile = true;
 let changedAssets = [];
 
 class ThemekitSyncPlugin {
-  constructor(options) {
-    this.options = options;
+  constructor(config) {
+    this.config = config;
   }
 
   apply(compiler) {
+    const config = this.config;
+
     // Hook when files have been written to the output path
     compiler.hooks.afterEmit.tapAsync(
       PLUGIN_NAME,
@@ -29,13 +30,13 @@ class ThemekitSyncPlugin {
         }
 
         if (config.skipFirstDeploy === false && isFirstCompile === true) {
-          await deploy();
+          await deploy(config);
         }
 
         // For future compile we just sync the changes assets
         if (isFirstCompile === false) {
           try {
-            await syncFiles(changedAssets);
+            await syncFiles(config, changedAssets);
           } catch (err) {
             console.log(chalk.red("Shopify template error"));
           }

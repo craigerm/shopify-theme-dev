@@ -103,7 +103,7 @@ const copyFilesInFolder = (folderName, isDebug) => {
   }
 };
 
-const syncFile = (filePath, mode) => {
+const syncFile = (config, filePath, mode) => {
   const localPath = filePath.split(paths.srcFolder + path.sep)[1];
 
   for (let folder of foldersToCopy) {
@@ -113,7 +113,7 @@ const syncFile = (filePath, mode) => {
       console.log(chalk.blueBright(`[${mode}] ${localPath}`));
       const destFile = syncFileToOutput(folder, filePath, mode);
       const localDestFile = destFile.split(paths.distFolder)[1];
-      themkitCli.syncFiles([localDestFile]);
+      themkitCli.syncFiles(config, [localDestFile]);
       return;
     }
   }
@@ -122,17 +122,18 @@ const syncFile = (filePath, mode) => {
 };
 
 class TransformThemeFilesPLugin {
-  constructor(isDebug) {
-    this.isDebug = isDebug;
+  constructor(config) {
+    this.config = config;
   }
 
   apply(compiler) {
+    const config = this.config;
     compiler.hooks.thisCompilation.tap(PLUGIN_NAME, (_compilation) => {
       if (!isFirstCompile) {
         return;
       }
 
-      if (this.isDebug) {
+      if (config.isDebug) {
         console.log(
           chalk.bold.blueBright(`[DEBUG] Running plugin ${PLUGIN_NAME}`)
         );
@@ -142,7 +143,7 @@ class TransformThemeFilesPLugin {
 
       // Copy folders
       for (const folder of foldersToCopy) {
-        copyFilesInFolder(folder, this.isDebug);
+        copyFilesInFolder(folder, config.isDebug);
       }
 
       // Copy config file
@@ -156,7 +157,7 @@ class TransformThemeFilesPLugin {
         return;
       }
 
-      if (this.isDebug) {
+      if (config.isDebug) {
         return;
       }
 
@@ -166,8 +167,8 @@ class TransformThemeFilesPLugin {
         const folderPath = path.join(paths.srcFolder, folderName);
         chokidar
           .watch(folderPath)
-          .on("change", (path) => syncFile(path, "REPLACE"))
-          .on("unlink", (path) => syncFile(path, "DELETE"));
+          .on("change", (path) => syncFile(config, path, "REPLACE"))
+          .on("unlink", (path) => syncFile(config, path, "DELETE"));
       }
     });
   }

@@ -3,6 +3,12 @@ process.env.BABEL_ENV = "production";
 process.env.NODE_ENV = "production";
 
 const createCompiler = require("./utils/create-compiler");
-const config = require("./utils/config");
+const initConfig = require("./utils/config");
+const displayThemeInfo = require("./utils/theme-info");
+const themeKitEnv = process.argv[2] || "production";
+const config = initConfig(themeKitEnv);
 
-createCompiler(config);
+(async function () {
+  await displayThemeInfo(config);
+  createCompiler(config);
+})();

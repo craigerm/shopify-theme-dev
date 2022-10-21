@@ -2,6 +2,12 @@ process.env.BABEL_ENV = "development";
 process.env.NODE_ENV = "development";
 
 const createCompiler = require("./utils/create-compiler");
-const config = require("./utils/config");
+const initConfig = require("./utils/config");
+const displayThemeInfo = require("./utils/theme-info");
+const themeKitEnv = process.argv[2] || "development";
+const config = initConfig(themeKitEnv);
 
-createCompiler(config);
+(async function () {
+  await displayThemeInfo(config);
+  createCompiler(config);
+})();

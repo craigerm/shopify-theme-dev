@@ -23,25 +23,31 @@ if (fs.existsSync(configFile) === false) {
   process.exit(1);
 }
 
-const configOptions = yaml.load(fs.readFileSync(configFile, "utf8"));
-const environmentOptions = configOptions[nodeEnv];
+const initConfig = (themekitEnv) => {
+  const configOptions = yaml.load(fs.readFileSync(configFile, "utf8"));
+  const environmentOptions = configOptions[themekitEnv];
 
-if (!environmentOptions) {
-  console.log(
-    `ERROR: Could not find themekit configuration for environment ${chalk.bold(
-      nodeEnv
-    )} found in ${chalk.bold(configFile)}.`
-  );
-  process.exit(1);
-}
+  if (!environmentOptions) {
+    console.log(
+      `ERROR: Could not find themekit configuration for environment ${chalk.bold(
+        themekitEnv
+      )} found in ${chalk.bold(configFile)}.`
+    );
+    process.exit(1);
+  }
 
-const configValues = {
-  themeId: environmentOptions.theme_id,
-  store: environmentOptions.store,
-  isDevelopment: isDevelopment,
-  environment: nodeEnv,
-  skipFirstDeploy: skipFirstDeploy,
-  isDebug: false,
+  const configValues = {
+    themeId: environmentOptions.theme_id,
+    password: environmentOptions.password,
+    store: environmentOptions.store,
+    isDevelopment: isDevelopment,
+    environment: nodeEnv,
+    themekitEnv: themekitEnv,
+    skipFirstDeploy: skipFirstDeploy,
+    isDebug: false,
+  };
+
+  return configValues;
 };
 
-module.exports = configValues;
+module.exports = initConfig;

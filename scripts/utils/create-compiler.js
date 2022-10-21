@@ -12,7 +12,7 @@ const showStatsInfo = (err, stats) => {
     console.log(chalk.red("Failed to compile webpack config!"));
     console.log(chalk.gray(err.stack || err));
     if (err.details) {
-      console.error(chalk.gray(errr.details));
+      console.error(chalk.gray(err.details));
     }
 
     if (isFirstCompile) {
@@ -28,7 +28,6 @@ const showStatsInfo = (err, stats) => {
     info.errors.forEach((e, index) => {
       if (index === 0) {
         console.log(chalk.white(e.stack || e.message || ""));
-        //console.log(chalk.grey(e.stack || e.message || ""));
       }
     });
 

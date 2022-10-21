@@ -3,7 +3,9 @@ process.env.NODE_ENV = "development";
 
 const chalk = require("chalk");
 const createCompiler = require("./utils/create-compiler");
-const config = require("./utils/config");
+
+const initConfig = require("./utils/config");
+const config = initConfig("development");
 
 config.isDebug = true;
 

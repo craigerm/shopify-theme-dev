@@ -20,7 +20,6 @@ if (!name) {
 const rootFolder = path.join(process.cwd(), name);
 
 const srcFolder = path.join(rootFolder, "src");
-const testFolder = path.join(rootFolder, "test");
 
 console.log("Creating project", name);
 

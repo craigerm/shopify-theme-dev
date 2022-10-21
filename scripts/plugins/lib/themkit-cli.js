@@ -4,7 +4,6 @@ const themekit = require("@shopify/themekit");
 const fs = require("fs");
 const path = require("path");
 const paths = require("../../utils/paths");
-const config = require("../../utils/config");
 
 const ignores = fs.readFileSync(
   path.join(process.cwd(), ".themekit_ignores"),
@@ -17,22 +16,27 @@ const customIgnores = ignores
   .map((x) => x.trim());
 
 const ignoreFiles = ["config/settings_data.json"].concat(customIgnores);
-let flags = { env: config.environment, ignoredFiles: ignoreFiles };
-let options = { cwd: paths.distFolder, logLevel: "all" };
+
+const runDeployCmd = async (config, files = null) => {
+  const options = { cwd: paths.distFolder, logLevel: "all" };
+  const flags = { env: config.themekitEnv, ignoredFiles: ignoreFiles };
+  const commandFlags = files ? { ...flags, files: files } : flags;
+  await themekit.command("deploy", commandFlags, options);
+};
 
 // Uploads full theme
-const deploy = async () => {
+const deploy = async (config) => {
   console.log(
     chalk.cyan(`Deploying full theme to Shopify (theme id: ${config.themeId}})`)
   );
 
-  await themekit.command("deploy", flags, options);
+  await runDeployCmd(config);
 
   console.log(`${chalk.green(figures.tick)} Theme uploaded in full to Shopify`);
 };
 
 // Uploads partial theme
-const syncFiles = async (files) => {
+const syncFiles = async (config, files) => {
   console.log(
     chalk.cyan(
       `Syncing ${files.length} files(s) to Shopify (theme id: ${config.themeId})`
@@ -43,9 +47,7 @@ const syncFiles = async (files) => {
   console.log(files.map((x) => `   ${chalk.grey(x)}`).join("\n"));
 
   // Upload the files to shopify
-  const commandFlags = { ...flags, files: files };
-
-  await themekit.command("deploy", commandFlags, options);
+  await runDeployCmd(config, files);
 };
 
 module.exports = {

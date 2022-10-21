@@ -1,12 +1,9 @@
 const webpack = require("webpack");
 const fs = require("fs");
 const path = require("path");
-//const { CleanWebpackPlugin } = require("clean-webpack-plugin");
-const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const paths = require("../utils/paths");
 const ThemekitSyncPlugin = require("../plugins/themekit-sync-plugin");
-//const transformLiquidPlugin = require("../plugins/transform-liquid-plugin");
 const AppVersionPlugin = require("../plugins/app-version-plugin");
 const LiquidChunksPlugin = require("../plugins/liquid-chunks-plugin");
 const TransformThemeFilesPLugin = require("../plugins/transform-theme-files-plugin");
@@ -136,7 +133,7 @@ module.exports = (config) => {
       }),
 
       // Copies all the liquid/etc files and transforms yml config files into liquid files
-      new TransformThemeFilesPLugin(config.isDebug),
+      new TransformThemeFilesPLugin(config),
 
       new LiquidChunksPlugin(),
 
@@ -144,7 +141,7 @@ module.exports = (config) => {
       new AppVersionPlugin(),
 
       // This should be last (it handles syncing files to shopify during development)
-      config.isDebug ? undefined : new ThemekitSyncPlugin(),
+      config.isDebug ? undefined : new ThemekitSyncPlugin(config),
     ].filter(Boolean),
   };
 };
