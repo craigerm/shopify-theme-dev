@@ -3,7 +3,10 @@ const chalk = require("chalk");
 const chokidar = require("chokidar");
 const paths = require("../utils/paths");
 const path = require("path");
-const transformSection = require("./lib/transform-section");
+const {
+  transformSection,
+  transformSettingsSchema,
+} = require("./lib/transform-section");
 const themkitCli = require("./lib/themkit-cli");
 
 const PLUGIN_NAME = "TransformThemeFilesPlugin";
@@ -47,7 +50,9 @@ const syncFileToOutput = (folderName, srcFile, mode, errorOnExist = false) => {
   destFile = path.join(destPath, partialPath);
 
   if (mode === "REPLACE") {
-    if (isSectionTransform) {
+    if (partialPath === "settings_schema.json") {
+      destFile = transformSettingsSchema(srcFile, destFile);
+    } else if (isSectionTransform) {
       destFile = transformSection(srcFile, destFile);
     } else {
       fs.copySync(srcFile, destFile, { errorOnExist: errorOnExist });

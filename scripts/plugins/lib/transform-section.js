@@ -246,4 +246,18 @@ const transformSection = (srcFile, destFile) => {
   return destFile;
 };
 
-module.exports = transformSection;
+const transformSettingsSchema = (srcFile, destFile) => {
+  const configSettings = JSON.parse(fs.readFileSync(srcFile, "utf8"));
+
+  for (const item of configSettings) {
+    if (item.settings) {
+      item.settings = replaceSettings(item.settings);
+    }
+  }
+
+  const data = JSON.stringify(configSettings, null, 2);
+  fs.outputFileSync(destFile, data);
+  return destFile;
+};
+
+module.exports = { transformSection, transformSettingsSchema };
