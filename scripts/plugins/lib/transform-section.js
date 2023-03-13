@@ -132,7 +132,7 @@ const replaceBlock = (block) => {
 
 const buildSchema = ({ title, schema, merge }) => {
   let json = readSchemaJSON(schema);
-  json = buildSectionSchema(title, schema, merge);
+  json = buildSectionSchema(title, json, merge);
   return JSON.stringify(json, null, 2);
 };
 
