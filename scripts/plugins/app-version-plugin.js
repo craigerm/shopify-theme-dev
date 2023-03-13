@@ -34,12 +34,7 @@ class AppVersionPlugin {
       PLUGIN_NAME,
       async (_compilation, callback) => {
         const version = await getVersion();
-        const content = [
-          '<script type="text/javascript">',
-          `window.APP_VERSION = "${version}";`,
-          "console.log(window.APP_VERSION);",
-          "</script>",
-        ].join("\n");
+        const content = `<meta name="appversion" content="${version}">`;
 
         fs.writeFileSync(
           path.join(paths.distFolder, "snippets", "app-version.liquid"),
