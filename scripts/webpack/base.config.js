@@ -101,6 +101,7 @@ module.exports = (config) => {
     module: {
       rules: [createJsRule(config), createCssRule(config)],
     },
+    recordsPath: path.join(paths.distFolder, "records.json"),
     optimization: {
       splitChunks: {
         hidePathInfo: true,
@@ -113,8 +114,8 @@ module.exports = (config) => {
           },
           "common-chunk": {
             chunks: "all",
-            name: "chunk",
-            minChunks: 3,
+            test: /js\/common/,
+            name: "bundle.common",
             minSize: 100000,
             maxSize: 200000,
           },
