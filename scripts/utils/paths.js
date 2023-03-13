@@ -1,8 +1,10 @@
 const path = require("path");
 
+const isTest = process.env.NODE_ENV == "test";
+
 // Folders
 const root = path.resolve(process.cwd());
-const srcFolder = path.resolve(root, "src");
+const srcFolder = path.resolve(root, isTest ? "test" : "src");
 const distFolder = path.resolve(root, "dist");
 
 module.exports = {

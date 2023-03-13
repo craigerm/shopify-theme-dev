@@ -1,0 +1,12 @@
+[
+  {
+    "type": "select",
+    "id": "theme",
+    "label": "Theme",
+    "options": [
+      { "value": "is-blue", "label": "Blue" },
+      { "value": "is-red", "label": "Red" }
+    ],
+    "default": "is-blue"
+  }
+]

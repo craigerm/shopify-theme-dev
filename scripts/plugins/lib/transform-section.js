@@ -17,14 +17,13 @@ const readSchemaJSON = (schemaName) => {
   const schemaFile = path.join(paths.schemasFolder, schemaName + ".json");
 
   if (!fs.existsSync(schemaFile)) {
-    throw new Error(`No schema exists for "${schemaFile}""`);
+    throw new Error(`No schema exists for "${schemaFile}"`);
   }
   try {
     return JSON.parse(fs.readFileSync(schemaFile, "utf8"));
   } catch (err) {
     console.log(chalk.redBright(`ERROR: Failed to parse ${schemaName}.json`));
     throw `ERROR Failed to parse ${schemaName}.json => ${err.message}`;
-    //throw err;
   }
 };
 
@@ -50,7 +49,18 @@ const updateNames = (schema, prefix, suffix, label) => {
   return schema;
 };
 
-const replaceSettings = (settings, prefix, suffix) => {
+const joinNames = (prefix, name) => {
+  if (prefix && name) {
+    return prefix + "_" + name;
+  }
+
+  if (prefix) {
+    return prefix;
+  }
+  return name;
+};
+
+const replaceSettings = (settings, basePrefix, baseSuffix) => {
   let updatedSettings = [];
 
   settings.forEach((obj) => {
@@ -58,13 +68,19 @@ const replaceSettings = (settings, prefix, suffix) => {
     // since it won't work if include object type information."
     if (typeof obj === "string") {
       let partialName = obj;
+      let prefix = "";
+      let suffix = "";
       let label = "";
 
       if (obj.indexOf("#") !== -1) {
         [partialName, prefix, suffix, label] = obj.split("#");
       }
 
+      prefix = joinNames(basePrefix, prefix);
+      suffix = joinNames(baseSuffix, suffix);
+
       assertPartialName(partialName);
+
       let schemaData = readSchemaJSON(partialName);
       schemaData.forEach((schema) =>
         updateNames(schema, prefix, suffix, label)
@@ -116,40 +132,7 @@ const replaceBlock = (block) => {
 
 const buildSchema = ({ title, schema, merge }) => {
   let json = readSchemaJSON(schema);
-
-  // Replace the schema name
-  json.name = title;
-
-  // Replace all the blocks if partials are used
-  if (json.blocks) {
-    json.blocks = json.blocks.map(replaceBlock);
-  }
-
-  if (json.settings) {
-    json.settings = replaceSettings(json.settings);
-  }
-
-  if (merge) {
-    const related = readSchemaJSON(merge);
-
-    // If include is just an array, then treat them
-    // as settings.
-    if (Array.isArray(related)) {
-      related.settings = related;
-      related.blocks = [];
-    }
-
-    if (related.settings && related.settings.length > 0) {
-      const relatedSettings = replaceSettings(related.settings);
-      json.settings = json.settings.concat(relatedSettings);
-    }
-
-    if (related.blocks && related.blocks.length > 0) {
-      const relatedBlocks = related.blocks.map(replaceBlock);
-      json.blocks = (json.blocks || []).concat(relatedBlocks);
-    }
-  }
-
+  json = buildSectionSchema(title, schema, merge);
   return JSON.stringify(json, null, 2);
 };
 
@@ -260,4 +243,44 @@ const transformSettingsSchema = (srcFile, destFile) => {
   return destFile;
 };
 
-module.exports = { transformSection, transformSettingsSchema };
+const buildSectionSchema = (name, data, merge = null) => {
+  data.name = name;
+
+  // Replace all the blocks if partials are used
+  if (data.blocks) {
+    data.blocks = data.blocks.map(replaceBlock);
+  }
+
+  if (data.settings) {
+    data.settings = replaceSettings(data.settings);
+  }
+
+  if (merge) {
+    const related = readSchemaJSON(merge);
+
+    // If include is just an array, then treat them
+    // as settings.
+    if (Array.isArray(related)) {
+      related.settings = related;
+      related.blocks = [];
+    }
+
+    if (related.settings && related.settings.length > 0) {
+      const relatedSettings = replaceSettings(related.settings);
+      data.settings = data.settings.concat(relatedSettings);
+    }
+
+    if (related.blocks && related.blocks.length > 0) {
+      const relatedBlocks = related.blocks.map(replaceBlock);
+      data.blocks = (data.blocks || []).concat(relatedBlocks);
+    }
+  }
+
+  return data;
+};
+
+module.exports = {
+  transformSection,
+  transformSettingsSchema,
+  buildSectionSchema,
+};

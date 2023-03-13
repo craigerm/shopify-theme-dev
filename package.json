@@ -2,6 +2,9 @@
   "name": "shopify-theme-dev",
   "version": "0.0.1",
   "license": "MIT",
+  "scripts": {
+    "test": "npx jest --watch"
+  },
   "bin": {
     "shopify-theme-dev": "./bin/shopify-theme-dev.js"
   },
@@ -47,7 +50,15 @@
     "yaml": "^1.10.0",
     "yaml-front-matter": "^4.1.1"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "babel-jest": "^27.0.6",
+    "babel-preset-jest": "^27.0.6"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.js$": "babel-jest"
+    }
+  },
   "browserslist": {
     "production": [
       ">0.2%",
