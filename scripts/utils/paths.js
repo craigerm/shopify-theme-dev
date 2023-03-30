@@ -16,6 +16,7 @@ module.exports = {
   scriptsFolder: path.resolve(srcFolder, "scripts"),
   scriptsFolder: path.resolve(srcFolder, "scripts"),
   jsFolder: path.resolve(srcFolder, "js"),
+  jsBlocksFolder: path.resolve(srcFolder, "js", "blocks"),
   cssFolder: path.resolve(srcFolder, "css"),
   includesFolder: path.resolve(srcFolder, "includes"),
   schemasFolder: path.resolve(srcFolder, "schemas"),

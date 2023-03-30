@@ -9,18 +9,30 @@ const LiquidChunksPlugin = require("../plugins/liquid-chunks-plugin");
 const TransformThemeFilesPLugin = require("../plugins/transform-theme-files-plugin");
 const CleanupPlugin = require("../plugins/cleanup-plugin");
 
-const getBundles = () => {
-  const names = fs
-    .readdirSync(paths.jsFolder)
-    .filter((x) => x.startsWith("bundle."));
+const getFilesStartingWith = (filter, folder) => {
+  if (!fs.existsSync(folder)) {
+    return [];
+  }
+  return fs.readdirSync(folder).filter((x) => x.startsWith(filter));
+};
 
+const getBundles = () => {
+  const topLevelBundles = getFilesStartingWith("bundle.", paths.jsFolder);
+  const blockBundles = getFilesStartingWith("block-", paths.jsBlocksFolder);
   const map = {};
 
-  names.forEach((name) => {
+  topLevelBundles.forEach((name) => {
     const bundleName = name.split(".js")[0];
-    const srcFile = path.resolve(paths.srcFolder, "js", name);
+    const srcFile = path.resolve(paths.jsFolder, name);
     map[bundleName] = srcFile;
   });
+
+  blockBundles.forEach((name) => {
+    const bundleName = name.split(".js")[0];
+    const srcFile = path.resolve(paths.jsBlocksFolder, name);
+    map[bundleName] = srcFile;
+  });
+
   return map;
 };
 
