@@ -39,13 +39,18 @@ const buildLabel = (label, suffix) => {
   return label;
 };
 
-const updateNames = (schema, prefix, suffix, label) => {
+const updateNames = (schema, prefix, suffix, label, defaultValue) => {
   if (schema.id) {
     schema.id = buildSchemaId(schema.id, prefix, suffix);
     schema.label = label || buildLabel(schema.label, suffix, label);
   } else if (schema.content) {
     schema.content = buildLabel(schema.content, suffix);
   }
+
+  if (defaultValue) {
+    schema.default = defaultValue;
+  }
+
   return schema;
 };
 
@@ -71,9 +76,10 @@ const replaceSettings = (settings, basePrefix, baseSuffix) => {
       let prefix = "";
       let suffix = "";
       let label = "";
+      let defaultValue = "";
 
       if (obj.indexOf("#") !== -1) {
-        [partialName, prefix, suffix, label] = obj.split("#");
+        [partialName, prefix, suffix, label, defaultValue] = obj.split("#");
       }
 
       prefix = joinNames(basePrefix, prefix);
@@ -82,8 +88,17 @@ const replaceSettings = (settings, basePrefix, baseSuffix) => {
       assertPartialName(partialName);
 
       let schemaData = readSchemaJSON(partialName);
+
+      if (defaultValue && schemaData.length !== 1) {
+        console.log(
+          "[ERROR]",
+          "Providing a default value only works when partial has a single setting"
+        );
+        process.exit(1);
+      }
+
       schemaData.forEach((schema) =>
-        updateNames(schema, prefix, suffix, label)
+        updateNames(schema, prefix, suffix, label, defaultValue)
       );
 
       // Recursive
