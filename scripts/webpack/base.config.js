@@ -102,7 +102,8 @@ const createCssRule = (config) => {
 module.exports = (config) => {
   return {
     mode: config.environment,
-    devtool: undefined,
+    // devtool: undefined,
+    devtool: config.isDevelopment ? undefined : "hidden-source-map",
     entry: {
       ...jsBundles,
     },

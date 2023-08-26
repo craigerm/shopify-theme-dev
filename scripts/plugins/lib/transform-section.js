@@ -89,14 +89,6 @@ const replaceSettings = (settings, basePrefix, baseSuffix) => {
 
       let schemaData = readSchemaJSON(partialName);
 
-      if (defaultValue && schemaData.length !== 1) {
-        console.log(
-          "[ERROR]",
-          "Providing a default value only works when partial has a single setting"
-        );
-        process.exit(1);
-      }
-
       schemaData.forEach((schema) =>
         updateNames(schema, prefix, suffix, label, defaultValue)
       );

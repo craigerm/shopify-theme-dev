@@ -41,6 +41,11 @@ class AppVersionPlugin {
           content
         );
 
+        fs.writeFileSync(
+          path.join(paths.distFolder, "app-version.txt"),
+          version
+        );
+
         callback();
       }
     );
