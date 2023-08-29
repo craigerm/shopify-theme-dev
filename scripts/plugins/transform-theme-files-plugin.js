@@ -24,6 +24,26 @@ const foldersToCopy = [
   "sections",
 ];
 
+const handleCopyFiletoDistFolder = (srcFile, destFile, errorOnExist) => {
+  if (destFile.endsWith("/snippets/script-tags.liquid")) {
+    const isDev = process.env.NODE_ENV !== "production";
+
+    let content = fs.readFileSync(srcFile, "utf8");
+
+    if (isDev) {
+      content = '{%- assign js_ext = ".js" -%}\n\n' + content;
+    } else {
+      content = '{%- assign js_ext = ".min.js" -%}\n\n' + content;
+    }
+
+    fs.writeFileSync(destFile, content, { errorOnExist: errorOnExist });
+    return;
+  }
+
+  // For all other files we can just copy as usual
+  fs.copySync(srcFile, destFile, { errorOnExist: errorOnExist });
+};
+
 const syncFileToOutput = (folderName, srcFile, mode, errorOnExist = false) => {
   const destPath = path.join(paths.distFolder, folderName);
   const srcFolder = path.join(paths.srcFolder, folderName);
@@ -55,7 +75,7 @@ const syncFileToOutput = (folderName, srcFile, mode, errorOnExist = false) => {
     } else if (isSectionTransform) {
       destFile = transformSection(srcFile, destFile);
     } else {
-      fs.copySync(srcFile, destFile, { errorOnExist: errorOnExist });
+      handleCopyFiletoDistFolder(srcFile, destFile, errorOnExist);
     }
 
     return destFile;
