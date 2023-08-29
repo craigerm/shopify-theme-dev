@@ -109,7 +109,9 @@ module.exports = (config) => {
     },
     output: {
       path: paths.distFolder,
-      filename: "assets/[name].js",
+      filename: config.isDevelopment
+        ? "assets/[name].js"
+        : "assets/[name].min.js",
     },
     module: {
       rules: [createJsRule(config), createCssRule(config)],
