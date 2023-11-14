@@ -15,7 +15,7 @@
     "@babel/preset-env": "^7.12.11",
     "@babel/runtime": "^7.12.5",
     "@babel/runtime-corejs3": "^7.12.5",
-    "@shopify/themekit": "^1.1.6",
+    "@shopify/themekit": "^1.1.9",
     "babel-loader": "^8.2.2",
     "chalk": "^4.1.0",
     "chokidar": "^3.5.3",
