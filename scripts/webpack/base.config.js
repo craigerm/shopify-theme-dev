@@ -19,6 +19,11 @@ const getFilesStartingWith = (filter, folder) => {
 const getBundles = () => {
   const topLevelBundles = getFilesStartingWith("bundle.", paths.jsFolder);
   const blockBundles = getFilesStartingWith("block-", paths.jsBlocksFolder);
+  const componentBundles = getFilesStartingWith(
+    "component-",
+    paths.jsComponentsFolder,
+  );
+
   const map = {};
 
   topLevelBundles.forEach((name) => {
@@ -30,6 +35,12 @@ const getBundles = () => {
   blockBundles.forEach((name) => {
     const bundleName = name.split(".js")[0];
     const srcFile = path.resolve(paths.jsBlocksFolder, name);
+    map[bundleName] = srcFile;
+  });
+
+  componentBundles.forEach((name) => {
+    const bundleName = name.split(".js")[0];
+    const srcFile = path.resolve(paths.jsComponentsFolder, name);
     map[bundleName] = srcFile;
   });
 
