@@ -193,7 +193,7 @@ const transformSection = (srcFile, destFile) => {
     }
 
     sectionContents.push(
-      `{% include '${config.include}', ${assigns.join(", ")} %}`
+      `{% render '${config.include}', ${assigns.join(", ")} %}`,
     );
   } else {
     config = yamlFront.loadFront(textContent);
