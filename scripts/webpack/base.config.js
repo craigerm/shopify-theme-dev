@@ -143,7 +143,9 @@ module.exports = (config) => {
             test: /js\/common/,
             name: "bundle.common",
             minSize: 100000,
-            maxSize: 200000,
+            // We don't want a max size or it will create multiple chunks
+            // We'll be rebuilding this soon anyway..
+            // maxSize: 200000,
           },
         },
       },
