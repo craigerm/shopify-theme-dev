@@ -7,6 +7,7 @@ const i = chalk.bold.white;
 
 module.exports = async (config) => {
   const theme = await ShopifyAPI.getTheme(config, config.themeId);
+  const shop = await ShopifyAPI.getShop(config);
 
   if (!theme) {
     console.log(e`[ERROR] Could not find matching theme id: ${config.themeId}`);
@@ -15,9 +16,13 @@ module.exports = async (config) => {
     process.exit(1);
   }
 
+  const previewURL = `http://${shop.domain}/?preview_theme_id=${theme.id}`;
+
   console.log(h("*************************************************"));
   console.log(h(`Theme: ${theme.name}`));
+  console.log(h(`ID: ${config.themeId}`));
   console.log(h(`Config: ${config.themekitEnv}`));
   console.log(h(`Store: ${config.store}`));
+  console.log(h(`Preview URL: ${previewURL}`));
   console.log(h("*************************************************"));
 };

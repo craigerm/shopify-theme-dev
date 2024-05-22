@@ -1,8 +1,12 @@
 const fetch = require("node-fetch");
 const API_VERSION = "2022-07";
 
-const fetchData = async (config, verb, path) => {
-  const url = `https://${config.store}/admin/api/${API_VERSION}/${path}.json`;
+const fetchData = async (config, verb, path, params) => {
+  let url = `https://${config.store}/admin/api/${API_VERSION}/${path}.json`;
+  if (params) {
+    url += `?${new URLSearchParams(params).toString()}`;
+  }
+
   const options = {
     method: verb,
     headers: {
@@ -25,6 +29,11 @@ const fetchData = async (config, verb, path) => {
   return await response.json();
 };
 
+const getShop = async (config) => {
+  const data = await fetchData(config, "GET", `shop`, { fields: "domain" });
+  return data ? data.shop : null;
+};
+
 const getTheme = async (config, themeId) => {
   const data = await fetchData(config, "GET", `themes/${themeId}`);
   return data ? data.theme : null;
@@ -32,4 +41,5 @@ const getTheme = async (config, themeId) => {
 
 module.exports = {
   getTheme,
+  getShop,
 };
